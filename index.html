@@ -1419,43 +1419,31 @@ class IsometricEngine {
     }
 
     render() {
-        // Clear Canvas
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         
         const zoom = appState.state.camera.zoom;
         const isTopDown = appState.state.camera.angle === 'topdown';
 
-        // Draw Grid
-        this.ctx.strokeStyle = 'rgba(150, 150, 150, 0.2)';
-        this.ctx.lineWidth = 1;
+        // 1. Subtle Ground Grid
+        this.ctx.strokeStyle = document.documentElement.getAttribute('data-theme') === 'dark' ? 'rgba(148, 163, 184, 0.08)' : 'rgba(0, 0, 0, 0.05)';
         const size = appState.state.gridSize;
 
         for (let i = 0; i <= size; i++) {
-            // Lines parallel to Y
+            this.ctx.lineWidth = (i % 5 === 0) ? 1.5 : 0.5;
             let p1 = this.project(i, 0, 0);
             let p2 = this.project(i, size, 0);
-            this.ctx.beginPath();
-            this.ctx.moveTo(p1.x, p1.y);
-            this.ctx.lineTo(p2.x, p2.y);
-            this.ctx.stroke();
+            this.ctx.beginPath(); this.ctx.moveTo(p1.x, p1.y); this.ctx.lineTo(p2.x, p2.y); this.ctx.stroke();
 
-            // Lines parallel to X
             p1 = this.project(0, i, 0);
             p2 = this.project(size, i, 0);
-            this.ctx.beginPath();
-            this.ctx.moveTo(p1.x, p1.y);
-            this.ctx.lineTo(p2.x, p2.y);
-            this.ctx.stroke();
+            this.ctx.beginPath(); this.ctx.moveTo(p1.x, p1.y); this.ctx.lineTo(p2.x, p2.y); this.ctx.stroke();
         }
 
-        // Painter's Algorithm: Sort items by depth (x + y + z) for ISO rendering
-        // In Top-down, sort strictly by Z
         const sortedItems = [...appState.state.items].map((item, index) => ({...item, originalIndex: index})).sort((a, b) => {
             if (isTopDown) return a.z - b.z;
             return (a.x + a.y + a.z) - (b.x + b.y + b.z);
         });
 
-        // Determine Collisions
         const collisions = new Set();
         for (let i = 0; i < sortedItems.length; i++) {
             for (let j = i + 1; j < sortedItems.length; j++) {
@@ -1473,7 +1461,6 @@ class IsometricEngine {
             this.drawItem(item, isSelected, isHovered, isColliding, false);
         });
 
-        // Draw Ghost Placement
         if (ui.draggedItemType) {
             const asset = OmniAssets.items.find(i => i.id === ui.draggedItemType);
             if (asset) {
@@ -1482,13 +1469,7 @@ class IsometricEngine {
                     gridPos.x = Math.round(gridPos.x);
                     gridPos.y = Math.round(gridPos.y);
                 }
-                const ghostItem = {
-                    ...asset,
-                    x: gridPos.x,
-                    y: gridPos.y,
-                    z: 0,
-                    rotation: 0
-                };
+                const ghostItem = { ...asset, x: gridPos.x, y: gridPos.y, z: 0, rotation: 0 };
                 this.ctx.globalAlpha = 0.5;
                 this.drawItem(ghostItem, false, false, false, true);
                 this.ctx.globalAlpha = 1.0;
@@ -1501,91 +1482,246 @@ class IsometricEngine {
         const zoom = appState.state.camera.zoom;
         const isTopDown = appState.state.camera.angle === 'topdown';
 
-        // Base tile dimensions
         const tw = 40 * zoom;
         const th = 20 * zoom;
         const zw = 40 * zoom;
-
-        // Apply rotation logic (Swapping width/depth if rotated 90/270)
         let w = item.width;
         let d = item.depth;
-        
+        let h = item.height;
+
         if (isTopDown) {
             const sw = w * tw;
             const sh = d * tw;
-            
-            // Draw Shadow
-            this.ctx.fillStyle = 'rgba(0,0,0,0.2)';
-            this.ctx.fillRect(pt.x + (item.z * 5), pt.y + (item.z * 5), sw, sh);
-
-            // Draw Base
+            this.ctx.fillStyle = 'rgba(0,0,0,0.3)';
+            this.ctx.fillRect(pt.x + (item.z * 5) + 5, pt.y + (item.z * 5) + 5, sw, sh);
             this.ctx.fillStyle = item.color || '#999';
             this.ctx.fillRect(pt.x, pt.y, sw, sh);
-            
             this.ctx.strokeStyle = isColliding ? 'red' : (isSelected ? 'var(--primary-color)' : (isHovered ? 'white' : '#000'));
             this.ctx.lineWidth = isSelected ? 3 : 1;
             this.ctx.strokeRect(pt.x, pt.y, sw, sh);
-        } else {
-            // ISOMETRIC DRAWING (Block Model)
-            const pts = {
-                bottomCenter: pt,
-                bottomRight: { x: pt.x + (w * tw), y: pt.y + (w * th) },
-                bottomLeft: { x: pt.x - (d * tw), y: pt.y + (d * th) },
-                bottomBack: { x: pt.x + (w * tw) - (d * tw), y: pt.y + (w * th) + (d * th) },
-                
-                topCenter: { x: pt.x, y: pt.y - (item.height * zw) },
-                topRight: { x: pt.x + (w * tw), y: pt.y + (w * th) - (item.height * zw) },
-                topLeft: { x: pt.x - (d * tw), y: pt.y + (d * th) - (item.height * zw) },
-                topBack: { x: pt.x + (w * tw) - (d * tw), y: pt.y + (w * th) + (d * th) - (item.height * zw) }
-            };
+            return;
+        }
 
-            // Draw shadow based on Z height
-            if (item.z > 0) {
-                const shadowPt = this.project(item.x, item.y, 0); // Shadow at ground
-                this.ctx.fillStyle = 'rgba(0,0,0,0.2)';
-                this.ctx.beginPath();
-                this.ctx.moveTo(shadowPt.x, shadowPt.y);
-                this.ctx.lineTo(shadowPt.x + (w * tw), shadowPt.y + (w * th));
-                this.ctx.lineTo(shadowPt.x + (w * tw) - (d * tw), shadowPt.y + (w * th) + (d * th));
-                this.ctx.lineTo(shadowPt.x - (d * tw), shadowPt.y + (d * th));
-                this.ctx.closePath();
-                this.ctx.fill();
+        // ISOMETRIC 3D RENDERING
+        const pts = {
+            bottomCenter: pt,
+            bottomRight: { x: pt.x + (w * tw), y: pt.y + (w * th) },
+            bottomLeft: { x: pt.x - (d * tw), y: pt.y + (d * th) },
+            bottomBack: { x: pt.x + (w * tw) - (d * tw), y: pt.y + (w * th) + (d * th) },
+            topCenter: { x: pt.x, y: pt.y - (h * zw) },
+            topRight: { x: pt.x + (w * tw), y: pt.y + (w * th) - (h * zw) },
+            topLeft: { x: pt.x - (d * tw), y: pt.y + (d * th) - (h * zw) },
+            topBack: { x: pt.x + (w * tw) - (d * tw), y: pt.y + (w * th) + (d * th) - (h * zw) }
+        };
+
+        // 1. Directional Ground Shadow & AO
+        if (!isGhost) {
+            const shadowOffset = 8 * zoom;
+            this.ctx.fillStyle = 'rgba(0,0,0,0.2)';
+            this.ctx.beginPath();
+            const gPt = this.project(item.x, item.y, 0);
+            this.ctx.moveTo(gPt.x + shadowOffset, gPt.y + shadowOffset*0.5);
+            this.ctx.lineTo(gPt.x + (w*tw) + shadowOffset, gPt.y + (w*th) + shadowOffset*0.5);
+            this.ctx.lineTo(gPt.x + (w*tw) - (d*tw) + shadowOffset, gPt.y + (w*th) + (d*th) + shadowOffset*0.5);
+            this.ctx.lineTo(gPt.x - (d*tw) + shadowOffset, gPt.y + (d*th) + shadowOffset*0.5);
+            this.ctx.fill();
+        }
+
+        const nameLc = item.name.toLowerCase();
+        const catLc = item.category ? item.category.toLowerCase() : '';
+        const isGlass = nameLc.includes('glass') || nameLc.includes('window');
+        const isContainer = nameLc.includes('container');
+        const is3DPrinted = nameLc.includes('3d printed');
+        const isBrick = nameLc.includes('brick');
+        const isDeck = nameLc.includes('deck');
+        const isTile = nameLc.includes('tile');
+        const isPool = nameLc.includes('pool');
+        const isSolar = nameLc.includes('solar');
+        const isFlora = nameLc.includes('oak') || nameLc.includes('pine') || nameLc.includes('plant');
+        const isSlab = nameLc.includes('slab');
+
+        const baseAlpha = isGlass ? 0.35 : (item.color && item.color.includes('rgba') ? 0.8 : 0.96);
+
+        // 2. 3-Point Lighting Colors
+        const hexToRgb = (hex) => {
+            if(hex.startsWith('rgba')) return hex;
+            var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : '150, 150, 150';
+        };
+        const rgb = hexToRgb(item.color || '#999999');
+        const adjustColor = (rgbStr, percent, alpha) => {
+            const parts = rgbStr.replace('rgba(','').replace(')','').split(',').map(n => parseInt(n.trim()));
+            const r = Math.min(255, Math.max(0, parts[0] + (255 * percent)));
+            const g = Math.min(255, Math.max(0, parts[1] + (255 * percent)));
+            const b = Math.min(255, Math.max(0, parts[2] + (255 * percent)));
+            return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+        };
+
+        const cTop = isSolar ? 'rgba(10,30,60,0.95)' : adjustColor(rgb, 0.15, baseAlpha);
+        const cLeft = adjustColor(rgb, -0.05, baseAlpha);
+        const cRight = adjustColor(rgb, -0.25, baseAlpha);
+        const strokeColor = isColliding ? 'red' : (isSelected ? 'var(--primary-color)' : (isHovered ? 'white' : 'rgba(0,0,0,0.4)'));
+
+        const drawFace = (path, fill, stroke, patternCb) => {
+            this.ctx.beginPath();
+            this.ctx.moveTo(path[0].x, path[0].y);
+            for (let i = 1; i < path.length; i++) this.ctx.lineTo(path[i].x, path[i].y);
+            this.ctx.closePath();
+            
+            // AO Gradient on faces
+            if (path[0] === pts.topLeft || path[0] === pts.topCenter) {
+                const grad = this.ctx.createLinearGradient(path[0].x, path[0].y, path[2].x, path[2].y);
+                grad.addColorStop(0, fill);
+                grad.addColorStop(1, adjustColor(fill, -0.1, baseAlpha));
+                this.ctx.fillStyle = grad;
+            } else {
+                this.ctx.fillStyle = fill;
+            }
+            this.ctx.fill();
+
+            if (patternCb) {
+                this.ctx.save();
+                this.ctx.clip();
+                patternCb();
+                this.ctx.restore();
             }
 
-            const drawFace = (path, fill, stroke) => {
+            this.ctx.strokeStyle = stroke;
+            this.ctx.lineWidth = isSelected ? 2 : 0.5;
+            this.ctx.stroke();
+        };
+
+        // 3. Category-Specific Procedural Renderers
+        const drawCorrugation = (face) => {
+            this.ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+            this.ctx.lineWidth = 1 * zoom;
+            const steps = Math.floor((face === 'left' ? d : w) * 4);
+            for(let i=1; i<steps; i++) {
+                const pct = i/steps;
                 this.ctx.beginPath();
-                this.ctx.moveTo(path[0].x, path[0].y);
-                for (let i = 1; i < path.length; i++) this.ctx.lineTo(path[i].x, path[i].y);
-                this.ctx.closePath();
-                this.ctx.fillStyle = fill;
-                this.ctx.fill();
-                this.ctx.strokeStyle = stroke;
-                this.ctx.lineWidth = isSelected ? 2 : 1;
+                if (face === 'left') {
+                    const bx = pts.bottomCenter.x - (pts.bottomCenter.x - pts.bottomLeft.x)*pct;
+                    const by = pts.bottomCenter.y - (pts.bottomCenter.y - pts.bottomLeft.y)*pct;
+                    this.ctx.moveTo(bx, by);
+                    this.ctx.lineTo(bx, by - (h*zw));
+                } else {
+                    const bx = pts.bottomCenter.x + (pts.bottomRight.x - pts.bottomCenter.x)*pct;
+                    const by = pts.bottomCenter.y + (pts.bottomRight.y - pts.bottomCenter.y)*pct;
+                    this.ctx.moveTo(bx, by);
+                    this.ctx.lineTo(bx, by - (h*zw));
+                }
                 this.ctx.stroke();
-            };
+            }
+        };
 
-            const hexToRgb = (hex) => {
-                if(hex.startsWith('rgba')) return hex; // Pass through RGBA
-                var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-                return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : '150, 150, 150';
-            };
+        const drawLayerLines = () => {
+            this.ctx.strokeStyle = 'rgba(0,0,0,0.1)';
+            this.ctx.lineWidth = 1 * zoom;
+            const steps = Math.floor(h * 6);
+            for(let i=1; i<steps; i++) {
+                const pct = i/steps;
+                this.ctx.beginPath();
+                this.ctx.moveTo(pts.bottomLeft.x, pts.bottomLeft.y - (h*zw)*pct);
+                this.ctx.lineTo(pts.bottomCenter.x, pts.bottomCenter.y - (h*zw)*pct);
+                this.ctx.lineTo(pts.bottomRight.x, pts.bottomRight.y - (h*zw)*pct);
+                this.ctx.stroke();
+            }
+        };
 
-            const rgb = hexToRgb(item.color || '#999999');
-            
-            const strokeColor = isColliding ? 'red' : (isSelected ? 'var(--primary-color)' : (isHovered ? 'white' : 'rgba(0,0,0,0.5)'));
+        const drawDeckPlanks = () => {
+            this.ctx.strokeStyle = 'rgba(0,0,0,0.4)';
+            this.ctx.lineWidth = 1 * zoom;
+            const steps = Math.floor(w * 4);
+            for(let i=1; i<steps; i++) {
+                const pct = i/steps;
+                const tx = pts.topCenter.x + (pts.topRight.x - pts.topCenter.x)*pct;
+                const ty = pts.topCenter.y + (pts.topRight.y - pts.topCenter.y)*pct;
+                const bx = pts.topLeft.x + (pts.topBack.x - pts.topLeft.x)*pct;
+                const by = pts.topLeft.y + (pts.topBack.y - pts.topLeft.y)*pct;
+                this.ctx.beginPath(); this.ctx.moveTo(tx, ty); this.ctx.lineTo(bx, by); this.ctx.stroke();
+            }
+        };
 
-            // Top Face
-            drawFace([pts.topCenter, pts.topRight, pts.topBack, pts.topLeft], 
-                rgb.includes('rgba') ? rgb : `rgba(${rgb}, 1.0)`, strokeColor);
+        const drawGlassGlare = () => {
+            this.ctx.fillStyle = 'rgba(255,255,255,0.2)';
+            this.ctx.beginPath();
+            this.ctx.moveTo(pts.topLeft.x, pts.topLeft.y);
+            this.ctx.lineTo(pts.topLeft.x + 20*zoom, pts.topLeft.y);
+            this.ctx.lineTo(pts.bottomCenter.x, pts.bottomCenter.y - 10*zoom);
+            this.ctx.lineTo(pts.bottomCenter.x - 20*zoom, pts.bottomCenter.y - 10*zoom);
+            this.ctx.fill();
+        };
+
+        const drawPoolWater = () => {
+            const grad = this.ctx.createLinearGradient(pts.topCenter.x, pts.topCenter.y, pts.topBack.x, pts.topBack.y);
+            grad.addColorStop(0, 'rgba(100, 200, 255, 0.8)');
+            grad.addColorStop(1, 'rgba(20, 100, 180, 0.9)');
+            this.ctx.fillStyle = grad;
+            this.ctx.fill();
+            // Caustics
+            this.ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+            this.ctx.beginPath();
+            this.ctx.moveTo(pts.topCenter.x, pts.topCenter.y + 10);
+            this.ctx.lineTo(pts.topRight.x - 10, pts.topRight.y);
+            this.ctx.stroke();
+        };
+
+        // Flora overrides block rendering with overlapping circles
+        if (isFlora) {
+            const cx = pts.bottomCenter.x;
+            const cy = pts.bottomCenter.y - (h*zw/2);
+            const r = Math.max(w, d) * 20 * zoom;
             
-            // Left Face (darker)
-            drawFace([pts.topCenter, pts.topLeft, pts.bottomLeft, pts.bottomCenter], 
-                rgb.includes('rgba') ? rgb : `rgba(${rgb}, 0.7)`, strokeColor);
+            // Trunk
+            this.ctx.fillStyle = '#5c4033';
+            this.ctx.fillRect(cx - 2*zoom, cy, 4*zoom, h*zw/2);
             
-            // Right Face (darkest)
-            drawFace([pts.topCenter, pts.topRight, pts.bottomRight, pts.bottomCenter], 
-                rgb.includes('rgba') ? rgb : `rgba(${rgb}, 0.5)`, strokeColor);
+            // Canopy
+            this.ctx.fillStyle = adjustColor(rgb, 0, baseAlpha);
+            this.ctx.beginPath();
+            this.ctx.arc(cx, cy, r, 0, Math.PI*2);
+            this.ctx.fill();
+            this.ctx.fillStyle = adjustColor(rgb, 0.2, baseAlpha);
+            this.ctx.beginPath();
+            this.ctx.arc(cx - r*0.2, cy - r*0.2, r*0.7, 0, Math.PI*2);
+            this.ctx.fill();
+            if(isSelected) {
+                this.ctx.strokeStyle = strokeColor;
+                this.ctx.lineWidth = 2;
+                this.ctx.stroke();
+            }
+            return; // Skip box rendering
         }
+
+        // --- Execute Face Drawing ---
+        
+        // Top Face
+        drawFace([pts.topCenter, pts.topRight, pts.topBack, pts.topLeft], cTop, strokeColor, () => {
+            if (isDeck) drawDeckPlanks();
+            if (isPool) drawPoolWater();
+            if (isSolar) {
+                this.ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+                this.ctx.strokeRect(pts.topCenter.x-10, pts.topCenter.y, 20, 20); // rough solar grid
+            }
+        });
+        
+        // Left Face
+        drawFace([pts.topCenter, pts.topLeft, pts.bottomLeft, pts.bottomCenter], cLeft, strokeColor, () => {
+            if (isContainer) drawCorrugation('left');
+            if (is3DPrinted) drawLayerLines();
+            if (isGlass) drawGlassGlare();
+            if (isSlab) {
+                this.ctx.fillStyle = 'rgba(255,255,255,0.05)';
+                for(let k=0; k<10; k++) this.ctx.fillRect(pts.topLeft.x + Math.random()*w*tw, pts.topLeft.y + Math.random()*h*zw, 2, 2);
+            }
+        });
+        
+        // Right Face
+        drawFace([pts.topCenter, pts.topRight, pts.bottomRight, pts.bottomCenter], cRight, strokeColor, () => {
+            if (isContainer) drawCorrugation('right');
+            if (is3DPrinted) drawLayerLines();
+            if (isGlass) drawGlassGlare();
+        });
     }
 
     getThumbnail() {
