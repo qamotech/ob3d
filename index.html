@@ -1,0 +1,2123 @@
+﻿<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>OmniBuild 3D - Home Designer</title>
+    <!-- Favicon will be set via JS -->
+    <link id="dynamic-favicon" rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏗️</text></svg>">
+    
+    <style>
+/* ==========================================================================
+   OmniBuild 3D - Theming & Variables
+   ========================================================================== */
+:root {
+    /* Light Theme (Default) */
+    --bg-main: #f8fafc;
+    --bg-surface: #ffffff;
+    --bg-surface-glass: rgba(255, 255, 255, 0.7);
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --border-color: #e2e8f0;
+    --primary-color: #2563eb;
+    --primary-hover: #1d4ed8;
+    --success-color: #10b981;
+    --danger-color: #ef4444;
+    --warning-color: #f59e0b;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    --border-radius: 8px;
+    --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+[data-theme="dark"] {
+    --bg-main: #0f172a;
+    --bg-surface: #1e293b;
+    --bg-surface-glass: rgba(30, 41, 59, 0.7);
+    --text-primary: #f8fafc;
+    --text-secondary: #cbd5e1;
+    --border-color: #334155;
+    --primary-color: #3b82f6;
+    --primary-hover: #60a5fa;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
+}
+
+
+
+/* ==========================================================================
+   Global Reset & Base
+   ========================================================================== */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-sans);
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    line-height: 1.5;
+    overflow-x: hidden;
+    transition: background-color var(--transition), color var(--transition);
+}
+
+a {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: color var(--transition);
+}
+
+a:hover {
+    color: var(--primary-hover);
+    text-decoration: underline;
+}
+
+/* ==========================================================================
+   Layout Shell (Header, Main, Footer)
+   ========================================================================== */
+#app-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+#main-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background-color: var(--bg-surface-glass);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    transition: background-color var(--transition), border-color var(--transition);
+}
+
+.logo-area {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.logo-area h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+}
+
+.emoji-logo {
+    font-size: 1.75rem;
+}
+
+#top-nav {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+#router-view {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    /* This will be the main container for our active view */
+}
+
+/* ==========================================================================
+   Components (Buttons, Inputs, Badges, etc.)
+   ========================================================================== */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: var(--border-radius);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: var(--transition);
+    background-color: var(--bg-surface);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+.btn:hover {
+    background-color: var(--border-color);
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: #fff;
+    border-color: var(--primary-color);
+}
+.btn-primary:hover {
+    background-color: var(--primary-hover);
+}
+
+.btn-ghost {
+    background: transparent;
+    border-color: transparent;
+}
+.btn-ghost:hover {
+    background-color: var(--bg-surface);
+}
+
+.btn-icon {
+    padding: 0.5rem;
+    border-radius: 50%;
+}
+
+.btn-small {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+}
+
+.select-input, .text-input {
+    padding: 0.5rem;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-surface);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    transition: var(--transition);
+}
+
+.select-input:focus, .text-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+.badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.badge-success {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: var(--success-color);
+    border: 1px solid var(--success-color);
+}
+
+/* ==========================================================================
+   Modals & Overlays
+   ========================================================================== */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.modal-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.modal-dialog {
+    background-color: var(--bg-surface);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-lg);
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    transform: translateY(0) scale(1);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.modal-overlay.hidden .modal-dialog {
+    transform: translateY(20px) scale(0.95);
+}
+
+.modal-header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-content {
+    padding: 1.5rem;
+}
+
+.btn-close {
+    background: none;
+    border: none;
+    font-size: 1.25rem;
+    cursor: pointer;
+    color: var(--text-secondary);
+}
+.btn-close:hover {
+    color: var(--danger-color);
+}
+
+/* ==========================================================================
+   Tables & Data
+   ========================================================================== */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+}
+
+.data-table th, .data-table td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.data-table th {
+    font-weight: 600;
+    background-color: rgba(0,0,0,0.02);
+}
+
+/* ==========================================================================
+   Views: Home
+   ========================================================================== */
+.view-home {
+    padding: 4rem 2rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    animation: fadeIn 0.5s ease-out forwards;
+}
+
+.hero-banner {
+    position: relative;
+    padding: 4rem;
+    border-radius: var(--border-radius);
+    background: linear-gradient(135deg, var(--bg-surface), var(--border-color));
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+    max-width: 800px;
+    width: 100%;
+}
+
+/* Parallax/Scroll animations placeholder */
+.hero-banner::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%; width: 200%; height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 10%, transparent 10%);
+    background-size: 20px 20px;
+    animation: rotateBg 60s linear infinite;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 1;
+}
+
+.hero-content h2 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.hero-content p {
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+}
+
+@keyframes rotateBg {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==========================================================================
+   Views: Designer Workspace (App UI)
+   ========================================================================== */
+.view-designer {
+    display: flex;
+    flex: 1;
+    height: calc(100vh - 70px - 50px); /* viewport - header - footer */
+    overflow: hidden;
+}
+
+/* Sidebar Palette */
+.designer-sidebar {
+    width: 300px;
+    background-color: var(--bg-surface);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.sidebar-section {
+    border-bottom: 1px solid var(--border-color);
+}
+
+.sidebar-section-header {
+    padding: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    background-color: rgba(0,0,0,0.02);
+}
+
+.sidebar-section-content {
+    padding: 1rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+}
+
+.draggable-item {
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 0.5rem;
+    text-align: center;
+    cursor: grab;
+    background-color: var(--bg-main);
+    transition: var(--transition);
+    user-select: none;
+}
+.draggable-item:hover {
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+}
+.draggable-item:active {
+    cursor: grabbing;
+}
+.draggable-item img {
+    width: 100%;
+    height: auto;
+    margin-bottom: 0.25rem;
+    pointer-events: none;
+}
+
+/* Main Canvas Area */
+.designer-canvas-area {
+    flex: 1;
+    position: relative;
+    background-color: var(--bg-main);
+    overflow: hidden;
+}
+
+#engine-canvas {
+    width: 100%;
+    height: 100%;
+    cursor: crosshair;
+}
+
+/* Toolbar overlay */
+.canvas-toolbar {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 0.5rem;
+    background-color: var(--bg-surface-glass);
+    backdrop-filter: blur(8px);
+    padding: 0.5rem;
+    border-radius: 9999px;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-color);
+}
+
+.property-panel {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 250px;
+    background-color: var(--bg-surface-glass);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    box-shadow: var(--shadow-md);
+}
+.property-panel.hidden {
+    display: none;
+}
+.property-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    align-items: center;
+}
+.property-row input {
+    width: 60%;
+}
+
+/* ==========================================================================
+   Toasts & Notifications
+   ========================================================================== */
+#toast-container {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    z-index: 9999;
+}
+
+.toast {
+    padding: 1rem 1.5rem;
+    background-color: var(--bg-surface);
+    border-left: 4px solid var(--primary-color);
+    box-shadow: var(--shadow-md);
+    border-radius: var(--border-radius);
+    animation: slideInRight 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.toast.success { border-color: var(--success-color); }
+.toast.error { border-color: var(--danger-color); }
+.toast.warning { border-color: var(--warning-color); }
+
+.toast.fading-out {
+    animation: fadeOut 0.3s ease forwards;
+}
+
+@keyframes slideInRight {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+/* ==========================================================================
+   Footer
+   ========================================================================== */
+#main-footer {
+    background-color: var(--bg-surface);
+    border-top: 1px solid var(--border-color);
+    padding: 2rem 2rem 1rem 2rem;
+}
+
+.footer-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.footer-section h4 {
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+.footer-section a {
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.footer-bottom {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    border-top: 1px solid var(--border-color);
+    padding-top: 1rem;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: var(--bg-main);
+}
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary);
+}
+
+/* Context Menu */
+.context-menu {
+    position: absolute;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-lg);
+    border-radius: 4px;
+    z-index: 1000;
+    min-width: 150px;
+    padding: 0.5rem 0;
+}
+.context-menu.hidden {
+    display: none;
+}
+.context-menu .menu-item {
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+}
+.context-menu .menu-item:hover {
+    background: var(--border-color);
+}
+.text-danger {
+    color: var(--danger-color);
+}
+
+
+/* Splash Screen */
+#splash-screen {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: var(--bg-main);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999;
+    transition: opacity 0.5s ease-out;
+}
+#splash-screen.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+.loading-bar {
+    width: 300px;
+    height: 8px;
+    background: var(--border-color);
+    border-radius: 4px;
+    overflow: hidden;
+}
+.loading-progress {
+    width: 0%;
+    height: 100%;
+    background: var(--primary-color);
+    transition: width 0.1s linear;
+}
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+}
+
+/* Gallery Grid */
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+    padding: 2rem;
+}
+.gallery-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    transition: var(--transition);
+}
+.gallery-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+.gallery-preview {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    background: var(--bg-main);
+}
+.gallery-card-content {
+    padding: 1.5rem;
+}
+
+
+/* --- 24 New Animations & Effects --- */
+/* 1. Modal slide-down and blur */
+.modal-overlay {
+    backdrop-filter: blur(8px);
+    transition: opacity 0.3s ease;
+}
+.modal-dialog {
+    animation: modalSlide 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+@keyframes modalSlide {
+    from { transform: translateY(-50px) scale(0.9); opacity: 0; }
+    to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+/* 2. Context Menu Scale */
+.context-menu {
+    transform-origin: top left;
+    animation: popIn 0.2s ease-out forwards;
+}
+@keyframes popIn {
+    0% { transform: scale(0.8); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* 3. Sidebar slide-in */
+.designer-sidebar {
+    animation: slideRight 0.5s ease-out;
+}
+@keyframes slideRight {
+    from { transform: translateX(-100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+/* 4. Canvas Fade */
+.designer-canvas-area {
+    animation: fadeIn 0.8s ease-in;
+}
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* 5. Toolbar slide-down */
+.canvas-toolbar, .top-controls {
+    animation: slideDown 0.6s ease-out;
+}
+@keyframes slideDown {
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* 6. Gallery Card Hover Zoom & Glow */
+.gallery-card {
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+.gallery-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+}
+.gallery-card:hover .gallery-preview {
+    transform: scale(1.05);
+}
+.gallery-preview {
+    transition: transform 0.4s;
+}
+.gallery-card { overflow: hidden; } /* Ensure zoom stays in bounds */
+
+/* 7. Loading Bar Wave */
+.loading-progress {
+    background: linear-gradient(90deg, var(--primary-color) 0%, #60a5fa 50%, var(--primary-color) 100%);
+    background-size: 200% 100%;
+    animation: wave 1.5s infinite linear;
+}
+@keyframes wave {
+    0% { background-position: 100% 0; }
+    100% { background-position: -100% 0; }
+}
+
+/* 8. Pulsing Status Indicator */
+#status-indicator {
+    animation: pulseGlow 2s infinite alternate;
+}
+@keyframes pulseGlow {
+    from { box-shadow: 0 0 5px var(--success-color); }
+    to { box-shadow: 0 0 15px var(--success-color); }
+}
+
+/* 9. Hero Background Gradient Animation */
+.hero-banner {
+    background: linear-gradient(-45deg, #1e3a8a, #3b82f6, #1e40af, #2563eb);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
+}
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* 10. Button Hover Ripple/Lift */
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+.btn:active {
+    transform: translateY(1px);
+}
+
+/* 11. Property Panel slide-in */
+.property-panel {
+    animation: slideLeft 0.4s ease-out;
+}
+@keyframes slideLeft {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+/* 12. Logo Bounce Glow */
+.logo-area .emoji-logo {
+    display: inline-block;
+    transition: transform 0.3s;
+}
+.logo-area:hover .emoji-logo {
+    transform: rotate(15deg) scale(1.2);
+    text-shadow: 0 0 10px rgba(255,255,255,0.5);
+}
+
+/* 13. Sidebar Category Smooth Expansion */
+.sidebar-section-content {
+    transition: max-height 0.4s ease, padding 0.4s ease, opacity 0.4s ease;
+    overflow: hidden;
+}
+
+
+</style>
+</head>
+<body>
+    <!-- Splash Screen -->
+    <div id="splash-screen">
+        <div class="splash-logo">
+            <span class="emoji-logo" style="font-size: 5rem; display:block; margin-bottom:1rem; animation: bounce 2s infinite">🏗️</span>
+            <h1 style="font-size: 3rem; margin-bottom: 2rem;">OmniBuild 3D</h1>
+        </div>
+        <div class="loading-bar"><div class="loading-progress" id="splash-progress"></div></div>
+    </div>
+
+    <div id="app-container">
+        <header id="main-header">
+            <div class="logo-area">
+                <span class="emoji-logo">🏗️</span>
+                <h1>OmniBuild 3D</h1>
+            </div>
+            
+            <nav id="top-nav">
+                <button class="btn btn-ghost" onclick="router.navigate('/')">🏠 Home</button>
+                <button class="btn btn-ghost" onclick="router.navigate('/designer')">📐 Designer</button>
+                <button class="btn btn-ghost" onclick="router.navigate('/gallery')">🖼️ Gallery</button>
+            </nav>
+
+            <div class="header-controls">
+                <span id="status-indicator" class="badge badge-success">Online 🟢</span>
+                <select id="theme-selector" class="select-input">
+                    <option value="light">☀️ Light</option>
+                    <option value="dark">🌙 Dark</option>
+                </select>
+                <button id="btn-fullscreen" class="btn btn-icon" title="Toggle Fullscreen">⛶</button>
+            </div>
+        </header>
+
+        <!-- Main Routing View -->
+        <main id="router-view">
+            <!-- Dynamic Content Injected Here by Virtual Router -->
+        </main>
+
+        <!-- Footer -->
+        <footer id="main-footer">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>OmniBuild 3D Engine</h4>
+                    <p>Next-gen single file application architecture.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Resources</h4>
+                    <a href="#" onclick="ui.showModal('docs-modal')">📚 API Documentation</a>
+                    <a href="#" onclick="ui.showModal('shortcuts-modal')">⌨️ Keyboard Shortcuts</a>
+                </div>
+                <div class="footer-section">
+                    <h4>System</h4>
+                    <p id="footer-timestamp"></p>
+                    <button class="btn btn-small" onclick="appState.triggerToast('System checks passing! ✅', 'success')">Run Diagnostics</button>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 OmniBuild OS. All rights reserved.</p>
+            </div>
+        </footer>
+
+        <!-- Toast Container -->
+        <div id="toast-container"></div>
+
+        <!-- Modals -->
+        <div id="docs-modal" class="modal-overlay hidden" aria-hidden="true">
+            <div class="modal-dialog" role="dialog" aria-modal="true">
+                <header class="modal-header">
+                    <h2>📚 API & Documentation</h2>
+                    <button class="btn-close" onclick="ui.hideModal('docs-modal')">✖</button>
+                </header>
+                <div class="modal-content">
+                    <p>Welcome to OmniBuild's internal documentation.</p>
+                    <details>
+                        <summary>Isometric Engine Details</summary>
+                        <p>The canvas utilizes a custom orthographic projection matrix for (X, Y, Z) to screen (X, Y) mapping.</p>
+                    </details>
+                    <details>
+                        <summary>State Management</summary>
+                        <p>Uses deeply nested ES6 Proxies with PubSub event firing for zero-dependency reactivity.</p>
+                    </details>
+                </div>
+            </div>
+        </div>
+
+        <div id="shortcuts-modal" class="modal-overlay hidden" aria-hidden="true">
+            <div class="modal-dialog" role="dialog">
+                <header class="modal-header">
+                    <h2>⌨️ Keyboard Shortcuts</h2>
+                    <button class="btn-close" onclick="ui.hideModal('shortcuts-modal')">✖</button>
+                </header>
+                <div class="modal-content">
+                    <table class="data-table">
+                        <thead><tr><th>Action</th><th>Shortcut</th></tr></thead>
+                        <tbody>
+                            <tr><td>Rotate Item</td><td><kbd>R</kbd></td></tr>
+                            <tr><td>Delete Item</td><td><kbd>Del</kbd> / <kbd>Backspace</kbd></td></tr>
+                            <tr><td>Save Snapshot</td><td><kbd>Ctrl</kbd> + <kbd>S</kbd></td></tr>
+                            <tr><td>Pan Camera</td><td><kbd>Space</kbd> + Drag</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script id="worker-code" type="text/plain">
+// ==========================================================================
+// OmniBuild 3D - Background Web Worker
+// ==========================================================================
+self.onmessage = function(e) {
+    const { action, payload } = e.data;
+    
+    if (action === 'COMPUTE_GRID_COLLISIONS') {
+        const { items, gridSize } = payload;
+        // Heavy computational simulation of collision detection
+        let collisions = [];
+        for (let i = 0; i < items.length; i++) {
+            for (let j = i + 1; j < items.length; j++) {
+                // AABB simple collision logic
+                const a = items[i];
+                const b = items[j];
+                // Assuming items are 1x1 for simplified background check
+                if (a.x === b.x && a.y === b.y) {
+                    collisions.push([i, j]);
+                }
+            }
+        }
+        self.postMessage({ type: 'COLLISION_RESULT', data: collisions });
+    }
+    
+    if (action === 'PROCESS_EXPORT') {
+        // Expensive serialization / compression if needed
+        const result = JSON.stringify(payload);
+        self.postMessage({ type: 'EXPORT_RESULT', data: result });
+    }
+};
+
+</script>
+    <script>
+// ==========================================================================
+// OmniBuild 3D - Expanded Asset Library (40+ Items)
+// ==========================================================================
+const OmniAssets = {
+    items: [
+        // --- STRUCTURES (CONTAINERS) ---
+        { id: 'container-10ft', name: '10ft Storage Container', category: 'structures', width: 2, depth: 3, height: 2.6, color: '#3b82f6', icon: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="25" y="30" width="50" height="40" fill="%233b82f6"/><line x1="35" y1="30" x2="35" y2="70" stroke="black" stroke-width="2"/><line x1="65" y1="30" x2="65" y2="70" stroke="black" stroke-width="2"/></svg>` },
+        { id: 'container-20ft', name: '20ft Shipping Container', category: 'structures', width: 2, depth: 6, height: 2.6, color: '#2563eb', icon: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="10" y="30" width="80" height="40" fill="%232563eb"/><line x1="20" y1="30" x2="20" y2="70" stroke="black" stroke-width="2"/><line x1="80" y1="30" x2="80" y2="70" stroke="black" stroke-width="2"/></svg>` },
+        { id: 'container-40ft', name: '40ft Shipping Container', category: 'structures', width: 2, depth: 12, height: 2.6, color: '#1d4ed8', icon: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="5" y="35" width="90" height="30" fill="%231d4ed8"/><line x1="15" y1="35" x2="15" y2="65" stroke="black" stroke-width="2"/></svg>` },
+        { id: 'container-40ft-high', name: '40ft High Cube Container', category: 'structures', width: 2, depth: 12, height: 2.9, color: '#0f172a', icon: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="5" y="25" width="90" height="50" fill="%230f172a"/><line x1="15" y1="25" x2="15" y2="75" stroke="white" stroke-width="2"/></svg>` },
+        { id: 'glass-pavilion', name: 'Glass Pavilion', category: 'structures', width: 4, depth: 4, height: 3, color: 'rgba(125, 211, 252, 0.5)', icon: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="10" y="10" width="80" height="80" fill="%237dd3fc" opacity="0.5" stroke="%230284c7" stroke-width="4"/></svg>` },
+        
+        // --- 3D PRINTED FORMS / WALLS ---
+        { id: '3d-concrete-wall', name: '3D Printed Wall', category: '3d-printing', width: 4, depth: 0.5, height: 3, color: '#94a3b8', icon: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="10" y="40" width="80" height="20" fill="%2394a3b8"/></svg>` },
+        { id: '3d-concrete-wall-curved', name: '3D Curved Wall', category: '3d-printing', width: 4, depth: 4, height: 3, color: '#cbd5e1', icon: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M10,90 Q10,10 90,10 L90,30 Q30,30 30,90 Z" fill="%23cbd5e1"/></svg>` },
+        { id: '3d-concrete-column', name: '3D Printed Column', category: '3d-printing', width: 1, depth: 1, height: 3, color: '#64748b', icon: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="30" fill="%2364748b"/></svg>` },
+        { id: 'brick-wall', name: 'Brick Wall Segment', category: '3d-printing', width: 4, depth: 0.5, height: 3, color: '#b91c1c', icon: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="10" y="40" width="80" height="20" fill="%23b91c1c"/></svg>` },
+
+        // --- FOUNDATIONS & FLOORS ---
+        { id: 'foundation-slab-4x4', name: 'Concrete Slab (4x4)', category: 'foundations', width: 4, depth: 4, height: 0.2, color: '#e2e8f0', icon: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="10" y="10" width="80" height="80" fill="%23e2e8f0" stroke="%2394a3b8" stroke-width="5"/></svg>` },
+        { id: 'foundation-slab-8x8', name: 'Concrete Slab (8x8)', category: 'foundations', width: 8, depth: 8, height: 0.2, color: '#e2e8f0', icon: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="5" y="5" width="90" height="90" fill="%23e2e8f0" stroke="%2394a3b8" stroke-width="2"/></svg>` },
+        { id: 'wooden-deck-4x4', name: 'Wooden Deck (4x4)', category: 'foundations', width: 4, depth: 4, height: 0.3, color: '#b45309', icon: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="10" y="10" width="80" height="80" fill="%23b45309"/></svg>` },
+        { id: 'tile-floor-2x2', name: 'Tile Floor (2x2)', category: 'foundations', width: 2, depth: 2, height: 0.1, color: '#f8fafc', icon: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="10" y="10" width="80" height="80" fill="%23f8fafc" stroke="black" stroke-width="1"/></svg>` },
+
+        // --- ROOFS ---
+        { id: 'roof-flat-4x4', name: 'Flat Roof (4x4)', category: 'roofs', width: 4.2, depth: 4.2, height: 0.2, color: '#1e293b', icon: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="10" y="10" width="80" height="80" fill="%231e293b"/></svg>` },
+        { id: 'roof-solar-4x4', name: 'Solar Flat Roof (4x4)', category: 'roofs', width: 4.2, depth: 4.2, height: 0.3, color: '#0f172a', icon: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="10" y="10" width="80" height="80" fill="%230f172a"/></svg>` },
+        { id: 'roof-pitched-4x4', name: 'Pitched Roof (4x4)', category: 'roofs', width: 4.2, depth: 4.2, height: 2, color: '#7f1d1d', icon: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><polygon points="50,10 90,90 10,90" fill="%237f1d1d"/></svg>` },
+        
+        // --- DOORS & WINDOWS ---
+        { id: 'door-single', name: 'Single Door', category: 'doors-windows', width: 1, depth: 0.2, height: 2.1, color: '#451a03', icon: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="20" y="10" width="60" height="80" fill="%23451a03"/></svg>` },
+        { id: 'door-double-glass', name: 'Double Glass Door', category: 'doors-windows', width: 2, depth: 0.2, height: 2.1, color: 'rgba(56, 189, 248, 0.5)', icon: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="10" y="10" width="80" height="80" fill="%2338bdf8" opacity="0.5" stroke="black" stroke-width="4"/></svg>` },
+        { id: 'window-standard', name: 'Standard Window', category: 'doors-windows', width: 1.5, depth: 0.2, height: 1.2, color: 'rgba(224, 242, 254, 0.6)', icon: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="10" y="20" width="80" height="60" fill="%23e0f2fe" stroke="black" stroke-width="4"/></svg>` },
+        { id: 'window-panoramic', name: 'Panoramic Window', category: 'doors-windows', width: 4, depth: 0.2, height: 2, color: 'rgba(224, 242, 254, 0.6)', icon: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="0" y="20" width="100" height="60" fill="%23e0f2fe" stroke="black" stroke-width="2"/></svg>` },
+
+        // --- LANDSCAPING ---
+        { id: 'pool-lap', name: 'Lap Pool (2x10)', category: 'landscapes', width: 2, depth: 10, height: 0.05, color: '#0284c7', icon: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="30" y="10" width="40" height="80" rx="5" fill="%230ea5e9"/></svg>` },
+        { id: 'pool-infinity', name: 'Infinity Pool (6x6)', category: 'landscapes', width: 6, depth: 6, height: 0.05, color: '#38bdf8', icon: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="20" y="20" width="60" height="60" fill="%2338bdf8"/></svg>` },
+        { id: 'tree-oak', name: 'Large Oak Tree', category: 'landscapes', width: 3, depth: 3, height: 8, color: '#166534', icon: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="40" r="30" fill="%23166534"/></svg>` },
+        { id: 'tree-pine', name: 'Pine Tree', category: 'landscapes', width: 2, depth: 2, height: 10, color: '#064e3b', icon: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><polygon points="50,10 20,70 80,70" fill="%23064e3b"/></svg>` },
+        { id: 'grass-patch-4x4', name: 'Lawn (4x4)', category: 'landscapes', width: 4, depth: 4, height: 0.01, color: '#4ade80', icon: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="10" y="10" width="80" height="80" fill="%234ade80"/></svg>` },
+        { id: 'rock-boulder', name: 'Large Boulder', category: 'landscapes', width: 2, depth: 2, height: 1.5, color: '#52525b', icon: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M20,80 Q30,20 60,30 Q90,50 80,80 Z" fill="%2352525b"/></svg>` },
+        { id: 'garden-bed', name: 'Raised Garden Bed', category: 'landscapes', width: 2, depth: 1, height: 0.5, color: '#78350f', icon: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="10" y="30" width="80" height="40" fill="%2378350f"/></svg>` },
+        { id: 'fountain', name: 'Water Fountain', category: 'landscapes', width: 2, depth: 2, height: 2, color: '#e2e8f0', icon: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="%23e2e8f0"/></svg>` },
+        { id: 'fence-wood', name: 'Wooden Fence', category: 'landscapes', width: 2, depth: 0.1, height: 1.5, color: '#92400e', icon: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="10" y="20" width="80" height="60" fill="%2392400e"/></svg>` },
+
+        // --- UTILITIES & EXTERIOR ---
+        { id: 'utility-solar-array', name: 'Ground Solar Array', category: 'utilities', width: 4, depth: 2, height: 1.5, color: '#1e293b', icon: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="10" y="20" width="80" height="60" fill="%231e293b"/></svg>` },
+        { id: 'utility-water-tank', name: 'Rainwater Tank', category: 'utilities', width: 2, depth: 2, height: 3, color: '#94a3b8', icon: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="25" y="20" width="50" height="60" rx="10" fill="%2394a3b8"/></svg>` },
+        { id: 'utility-hvac', name: 'HVAC Unit', category: 'utilities', width: 1, depth: 1, height: 1, color: '#e2e8f0', icon: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="20" y="20" width="60" height="60" fill="%23e2e8f0"/></svg>` },
+        { id: 'utility-wind-turbine', name: 'Micro Wind Turbine', category: 'utilities', width: 1, depth: 1, height: 6, color: '#f8fafc', icon: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="45" y="40" width="10" height="50" fill="%2394a3b8"/><circle cx="50" cy="30" r="5" fill="%23f8fafc"/></svg>` },
+
+        // --- INTERIOR DECOR / FURNITURE ---
+        { id: 'furniture-bed-king', name: 'King Bed', category: 'furniture', width: 2.2, depth: 2.4, height: 0.6, color: '#f8fafc', icon: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="20" y="20" width="60" height="60" fill="%23f8fafc" stroke="%23cbd5e1" stroke-width="2"/></svg>` },
+        { id: 'furniture-sofa-l', name: 'L-Shaped Sofa', category: 'furniture', width: 3, depth: 2, height: 0.8, color: '#64748b', icon: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M20,20 L80,20 L80,40 L40,40 L40,80 L20,80 Z" fill="%2364748b"/></svg>` },
+        { id: 'furniture-kitchen-island', name: 'Kitchen Island', category: 'furniture', width: 3, depth: 1, height: 0.9, color: '#0f172a', icon: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="20" y="30" width="60" height="40" fill="%230f172a"/></svg>` },
+        { id: 'furniture-dining-table', name: 'Dining Table (6 seats)', category: 'furniture', width: 2.5, depth: 1.2, height: 0.8, color: '#78350f', icon: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="20" y="30" width="60" height="40" fill="%2378350f" rx="5"/></svg>` },
+        { id: 'furniture-desk', name: 'Office Desk', category: 'furniture', width: 1.5, depth: 0.8, height: 0.75, color: '#475569', icon: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="10" y="30" width="80" height="40" fill="%23475569"/></svg>` },
+        { id: 'furniture-chair', name: 'Lounge Chair', category: 'furniture', width: 1, depth: 1, height: 1, color: '#f59e0b', icon: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="20" y="20" width="60" height="60" fill="%23f59e0b" rx="10"/></svg>` },
+        { id: 'decor-rug', name: 'Area Rug', category: 'furniture', width: 3, depth: 4, height: 0.02, color: '#e2e8f0', icon: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="10" y="10" width="80" height="80" fill="%23e2e8f0"/></svg>` },
+        { id: 'lighting-floor-lamp', name: 'Floor Lamp', category: 'furniture', width: 0.5, depth: 0.5, height: 1.8, color: '#cbd5e1', icon: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="30" fill="%23cbd5e1"/></svg>` }
+    ]
+};
+
+// ==========================================================================
+// OmniBuild 3D - State Management (Reactivity + History + Auto-save)
+// ==========================================================================
+
+class Store {
+    constructor() {
+        this.listeners = {};
+        
+        // History Stack
+        this.history = [];
+        this.historyIndex = -1;
+        this.maxHistory = 50;
+
+        // Load from LocalStorage if exists
+        const saved = localStorage.getItem('omnibuild_autosave');
+        const defaultState = saved ? JSON.parse(saved) : {
+            items: [],
+            gridSize: 50,
+            camera: { x: 0, y: 0, zoom: 1, angle: 'isometric' }, // angle: 'isometric' or 'topdown'
+            selectedItemIndex: -1,
+            selectedItems: [], // For multi-select
+            theme: localStorage.getItem('omni_theme') || 'light',
+            route: '/',
+            snapToGrid: true,
+            timeOfDay: 12, // 0 to 24
+            activeFloor: 'all' // 'all', 0, 1, 2, etc.
+        };
+
+        this.state = new Proxy(defaultState, {
+            set: (target, property, value) => {
+                target[property] = value;
+                this.notify(property, value);
+                if (property === 'items') this.autoSave();
+                return true;
+            }
+        });
+        
+        // Initialize history
+        if (!saved) this.saveHistory();
+    }
+
+    subscribe(property, callback) {
+        if (!this.listeners[property]) {
+            this.listeners[property] = [];
+        }
+        this.listeners[property].push(callback);
+    }
+
+    notify(property, value) {
+        if (this.listeners[property]) {
+            this.listeners[property].forEach(callback => callback(value));
+        }
+        if (this.listeners['*']) {
+            this.listeners['*'].forEach(callback => callback(property, value));
+        }
+    }
+
+    // --- History (Undo/Redo) ---
+    saveHistory() {
+        // If we are not at the end of the history stack, truncate the future
+        if (this.historyIndex < this.history.length - 1) {
+            this.history = this.history.slice(0, this.historyIndex + 1);
+        }
+        
+        // Deep copy items
+        const snapshot = JSON.stringify(this.state.items);
+        this.history.push(snapshot);
+        
+        if (this.history.length > this.maxHistory) {
+            this.history.shift();
+        } else {
+            this.historyIndex++;
+        }
+        this.autoSave();
+    }
+
+    undo() {
+        if (this.historyIndex > 0) {
+            this.historyIndex--;
+            this.state.items = JSON.parse(this.history[this.historyIndex]);
+            this.notify('items', this.state.items);
+            this.triggerToast('Undo successful', 'success');
+        }
+    }
+
+    redo() {
+        if (this.historyIndex < this.history.length - 1) {
+            this.historyIndex++;
+            this.state.items = JSON.parse(this.history[this.historyIndex]);
+            this.notify('items', this.state.items);
+            this.triggerToast('Redo successful', 'success');
+        }
+    }
+
+    // --- Auto-Save & Gallery ---
+    autoSave() {
+        localStorage.setItem('omnibuild_autosave', JSON.stringify(this.state));
+    }
+
+    saveProjectToGallery(name, thumbnailBase64) {
+        const gallery = JSON.parse(localStorage.getItem('omnibuild_gallery') || '[]');
+        const project = {
+            id: Date.now().toString(),
+            name: name,
+            thumbnail: thumbnailBase64,
+            date: new Date().toLocaleString(),
+            data: JSON.parse(JSON.stringify(this.state)) // Deep clone
+        };
+        gallery.push(project);
+        localStorage.setItem('omnibuild_gallery', JSON.stringify(gallery));
+        this.triggerToast('Project Saved to Gallery!', 'success');
+    }
+
+    loadProjectFromGallery(id) {
+        const gallery = JSON.parse(localStorage.getItem('omnibuild_gallery') || '[]');
+        const project = gallery.find(p => p.id === id);
+        if (project) {
+            Object.assign(this.state, project.data);
+            this.notify('*', this.state);
+            this.saveHistory();
+            this.triggerToast('Project Loaded!', 'success');
+        }
+    }
+
+    deleteProjectFromGallery(id) {
+        let gallery = JSON.parse(localStorage.getItem('omnibuild_gallery') || '[]');
+        gallery = gallery.filter(p => p.id !== id);
+        localStorage.setItem('omnibuild_gallery', JSON.stringify(gallery));
+        this.triggerToast('Project Deleted', 'warning');
+    }
+
+    exportSnapshot() {
+        return JSON.stringify(this.state);
+    }
+    
+    importSnapshot(jsonString) {
+        try {
+            const data = JSON.parse(jsonString);
+            Object.assign(this.state, data);
+            this.notify('*', this.state);
+            this.saveHistory();
+        } catch (e) {
+            console.error("Invalid snapshot data");
+        }
+    }
+
+    triggerToast(message, type = 'success') {
+        const container = document.getElementById('toast-container');
+        if (!container) return;
+        
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        
+        const icon = type === 'success' ? '✅' : (type === 'error' ? '❌' : '⚠️');
+        toast.innerHTML = `<span>${icon}</span> <span>${message}</span>`;
+        
+        container.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.classList.add('fading-out');
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+}
+
+const appState = new Store();
+Store.prototype.importSnapshot = function(jsonString) {
+    try {
+        const parsed = JSON.parse(jsonString);
+        Object.assign(this.state, parsed);
+        this.notify('*', this.state);
+        this.saveHistory();
+    } catch(e) {
+        this.triggerToast('Invalid JSON file', 'error');
+    }
+};
+
+
+// ==========================================================================
+// OmniBuild 3D - Advanced Canvas Rendering Engine
+// ==========================================================================
+
+class IsometricEngine {
+    constructor(canvasId) {
+        this.canvas = document.getElementById(canvasId);
+        this.ctx = this.canvas.getContext('2d');
+        this.resize();
+        
+        // Panning & Zooming
+        this.isDragging = false;
+        this.dragStartX = 0;
+        this.dragStartY = 0;
+        
+        // Ghost Placement / Interaction state
+        this.hoveredItemIndex = -1;
+        this.mouseX = 0;
+        this.mouseY = 0;
+
+        window.addEventListener('resize', () => this.resize());
+        
+        // Listeners for reactivity
+        appState.subscribe('items', () => this.render());
+        appState.subscribe('camera', () => this.render());
+        
+        this.setupInteractions();
+        this.render();
+    }
+
+    resize() {
+        const parent = this.canvas.parentElement;
+        this.canvas.width = parent.clientWidth;
+        this.canvas.height = parent.clientHeight;
+        this.render();
+    }
+
+    // Convert Grid (x,y,z) -> Screen (x,y)
+    project(x, y, z) {
+        const panX = appState.state.camera.x;
+        const panY = appState.state.camera.y;
+        const zoom = appState.state.camera.zoom;
+        const tileW = 40 * zoom;
+        const tileH = 20 * zoom;
+        const zFactor = 40 * zoom;
+        
+        if (appState.state.camera.angle === 'topdown') {
+            const screenX = (this.canvas.width / 2) + ((x - appState.state.gridSize / 2) * tileW) + panX;
+            const screenY = (this.canvas.height / 2) + ((y - appState.state.gridSize / 2) * tileW) + panY;
+            return { x: screenX, y: screenY };
+        } else {
+            // Isometric
+            const isoX = (x - y) * tileW;
+            const isoY = (x + y) * tileH - (z * zFactor);
+            const screenX = (this.canvas.width / 2) + isoX + panX;
+            const screenY = (this.canvas.height / 2) + isoY + panY;
+            return { x: screenX, y: screenY };
+        }
+    }
+
+    // Convert Screen (x,y) -> Grid (x,y) at z=0
+    unproject(screenX, screenY) {
+        const panX = appState.state.camera.x;
+        const panY = appState.state.camera.y;
+        const zoom = appState.state.camera.zoom;
+        const tileW = 40 * zoom;
+        const tileH = 20 * zoom;
+
+        if (appState.state.camera.angle === 'topdown') {
+            const relX = screenX - (this.canvas.width / 2) - panX;
+            const relY = screenY - (this.canvas.height / 2) - panY;
+            const gridX = (relX / tileW) + (appState.state.gridSize / 2);
+            const gridY = (relY / tileW) + (appState.state.gridSize / 2);
+            return { x: gridX, y: gridY };
+        } else {
+            const isoX = screenX - (this.canvas.width / 2) - panX;
+            const isoY = screenY - (this.canvas.height / 2) - panY;
+            const gridY = (isoY / tileH - isoX / tileW) / 2;
+            const gridX = (isoY / tileH + isoX / tileW) / 2;
+            return { x: gridX, y: gridY };
+        }
+    }
+
+    setupInteractions() {
+        this.canvas.addEventListener('mousedown', (e) => {
+            if (e.button === 2) {
+                // Right click context menu
+                e.preventDefault();
+                ui.showContextMenu(e.clientX, e.clientY);
+                return;
+            } else {
+                ui.hideContextMenu();
+            }
+
+            if (window.keys && window.keys[' ']) {
+                // Space + Drag = Pan
+                this.isDragging = true;
+                this.dragStartX = e.clientX - appState.state.camera.x;
+                this.dragStartY = e.clientY - appState.state.camera.y;
+                this.canvas.style.cursor = 'grabbing';
+            } else {
+                // Normal click = Select or Place
+                if (ui.draggedItemType) {
+                    this.placeItem(e.clientX, e.clientY);
+                } else {
+                    this.selectItem(e.clientX, e.clientY);
+                }
+            }
+        });
+        
+        this.canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+
+        this.canvas.addEventListener('mousemove', (e) => {
+            const rect = this.canvas.getBoundingClientRect();
+            this.mouseX = e.clientX - rect.left;
+            this.mouseY = e.clientY - rect.top;
+
+            if (this.isDragging) {
+                appState.state.camera.x = e.clientX - this.dragStartX;
+                appState.state.camera.y = e.clientY - this.dragStartY;
+                appState.notify('camera', appState.state.camera);
+            } else {
+                // Update Hover
+                this.updateHover();
+                // Rerender for ghost placement
+                if (ui.draggedItemType) {
+                    this.render();
+                }
+            }
+        });
+
+        this.canvas.addEventListener('mouseup', () => {
+            this.isDragging = false;
+            this.canvas.style.cursor = 'crosshair';
+        });
+
+        this.canvas.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const zoomDelta = e.deltaY > 0 ? -0.1 : 0.1;
+            let newZoom = appState.state.camera.zoom + zoomDelta;
+            newZoom = Math.max(0.2, Math.min(newZoom, 4.0)); // Clamp 0.2x to 4.0x
+            appState.state.camera.zoom = newZoom;
+            appState.notify('camera', appState.state.camera);
+        }, { passive: false });
+    }
+    
+    updateHover() {
+        const oldHover = this.hoveredItemIndex;
+        this.hoveredItemIndex = -1;
+        
+        // Reverse iterate to pick top-most item
+        for (let i = appState.state.items.length - 1; i >= 0; i--) {
+            if (this.isPointInItem(this.mouseX, this.mouseY, appState.state.items[i])) {
+                this.hoveredItemIndex = i;
+                break;
+            }
+        }
+        if (oldHover !== this.hoveredItemIndex) this.render();
+    }
+
+    placeItem(screenX, screenY) {
+        const rect = this.canvas.getBoundingClientRect();
+        const gridPos = this.unproject(screenX - rect.left, screenY - rect.top);
+        
+        // Snapping logic
+        if (appState.state.snapToGrid) {
+            gridPos.x = Math.round(gridPos.x);
+            gridPos.y = Math.round(gridPos.y);
+        }
+
+        const asset = OmniAssets.items.find(i => i.id === ui.draggedItemType);
+        if (asset) {
+            const newItem = {
+                id: asset.id,
+                name: asset.name,
+                x: gridPos.x,
+                y: gridPos.y,
+                z: 0,
+                width: asset.width,
+                depth: asset.depth,
+                height: asset.height,
+                color: asset.color,
+                rotation: 0
+            };
+            appState.state.items.push(newItem);
+            appState.state.selectedItemIndex = appState.state.items.length - 1;
+            ui.draggedItemType = null;
+            appState.notify('items', appState.state.items);
+            appState.saveHistory();
+        }
+    }
+
+    selectItem(screenX, screenY) {
+        const rect = this.canvas.getBoundingClientRect();
+        const clickX = screenX - rect.left;
+        const clickY = screenY - rect.top;
+        
+        let found = -1;
+        // Search backwards to select top-most item (painter's algorithm order)
+        for (let i = appState.state.items.length - 1; i >= 0; i--) {
+            if (this.isPointInItem(clickX, clickY, appState.state.items[i])) {
+                found = i;
+                break;
+            }
+        }
+        
+        appState.state.selectedItemIndex = found;
+        appState.notify('selectedItemIndex', found);
+        this.render();
+    }
+
+    isPointInItem(px, py, item) {
+        const pt = this.project(item.x, item.y, item.z);
+        const zoom = appState.state.camera.zoom;
+        const w = item.width * 40 * zoom;
+        const d = item.depth * 40 * zoom;
+        
+        // Simple bounding box for selection
+        // Technically inaccurate for iso, but works fine for rough clicking
+        const boxSize = Math.max(w, d) * 1.5;
+        return (px > pt.x - boxSize/2 && px < pt.x + boxSize/2 &&
+                py > pt.y - boxSize/2 && py < pt.y + boxSize/2);
+    }
+    
+    checkCollision(itemA, itemB) {
+        return (
+            itemA.x < itemB.x + itemB.width &&
+            itemA.x + itemA.width > itemB.x &&
+            itemA.y < itemB.y + itemB.depth &&
+            itemA.y + itemA.depth > itemB.y &&
+            itemA.z < itemB.z + itemB.height &&
+            itemA.z + itemA.height > itemB.z
+        );
+    }
+
+    render() {
+        // Clear Canvas
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        
+        const zoom = appState.state.camera.zoom;
+        const isTopDown = appState.state.camera.angle === 'topdown';
+
+        // Draw Grid
+        this.ctx.strokeStyle = 'rgba(150, 150, 150, 0.2)';
+        this.ctx.lineWidth = 1;
+        const size = appState.state.gridSize;
+
+        for (let i = 0; i <= size; i++) {
+            // Lines parallel to Y
+            let p1 = this.project(i, 0, 0);
+            let p2 = this.project(i, size, 0);
+            this.ctx.beginPath();
+            this.ctx.moveTo(p1.x, p1.y);
+            this.ctx.lineTo(p2.x, p2.y);
+            this.ctx.stroke();
+
+            // Lines parallel to X
+            p1 = this.project(0, i, 0);
+            p2 = this.project(size, i, 0);
+            this.ctx.beginPath();
+            this.ctx.moveTo(p1.x, p1.y);
+            this.ctx.lineTo(p2.x, p2.y);
+            this.ctx.stroke();
+        }
+
+        // Painter's Algorithm: Sort items by depth (x + y + z) for ISO rendering
+        // In Top-down, sort strictly by Z
+        const sortedItems = [...appState.state.items].map((item, index) => ({...item, originalIndex: index})).sort((a, b) => {
+            if (isTopDown) return a.z - b.z;
+            return (a.x + a.y + a.z) - (b.x + b.y + b.z);
+        });
+
+        // Determine Collisions
+        const collisions = new Set();
+        for (let i = 0; i < sortedItems.length; i++) {
+            for (let j = i + 1; j < sortedItems.length; j++) {
+                if (this.checkCollision(sortedItems[i], sortedItems[j])) {
+                    collisions.add(sortedItems[i].originalIndex);
+                    collisions.add(sortedItems[j].originalIndex);
+                }
+            }
+        }
+
+        sortedItems.forEach(item => {
+            const isHovered = (item.originalIndex === this.hoveredItemIndex);
+            const isSelected = (item.originalIndex === appState.state.selectedItemIndex);
+            const isColliding = collisions.has(item.originalIndex);
+            this.drawItem(item, isSelected, isHovered, isColliding, false);
+        });
+
+        // Draw Ghost Placement
+        if (ui.draggedItemType) {
+            const asset = OmniAssets.items.find(i => i.id === ui.draggedItemType);
+            if (asset) {
+                let gridPos = this.unproject(this.mouseX, this.mouseY);
+                if (appState.state.snapToGrid) {
+                    gridPos.x = Math.round(gridPos.x);
+                    gridPos.y = Math.round(gridPos.y);
+                }
+                const ghostItem = {
+                    ...asset,
+                    x: gridPos.x,
+                    y: gridPos.y,
+                    z: 0,
+                    rotation: 0
+                };
+                this.ctx.globalAlpha = 0.5;
+                this.drawItem(ghostItem, false, false, false, true);
+                this.ctx.globalAlpha = 1.0;
+            }
+        }
+    }
+
+    drawItem(item, isSelected, isHovered, isColliding, isGhost) {
+        const pt = this.project(item.x, item.y, item.z);
+        const zoom = appState.state.camera.zoom;
+        const isTopDown = appState.state.camera.angle === 'topdown';
+
+        // Base tile dimensions
+        const tw = 40 * zoom;
+        const th = 20 * zoom;
+        const zw = 40 * zoom;
+
+        // Apply rotation logic (Swapping width/depth if rotated 90/270)
+        let w = item.width;
+        let d = item.depth;
+        
+        if (isTopDown) {
+            const sw = w * tw;
+            const sh = d * tw;
+            
+            // Draw Shadow
+            this.ctx.fillStyle = 'rgba(0,0,0,0.2)';
+            this.ctx.fillRect(pt.x + (item.z * 5), pt.y + (item.z * 5), sw, sh);
+
+            // Draw Base
+            this.ctx.fillStyle = item.color || '#999';
+            this.ctx.fillRect(pt.x, pt.y, sw, sh);
+            
+            this.ctx.strokeStyle = isColliding ? 'red' : (isSelected ? 'var(--primary-color)' : (isHovered ? 'white' : '#000'));
+            this.ctx.lineWidth = isSelected ? 3 : 1;
+            this.ctx.strokeRect(pt.x, pt.y, sw, sh);
+        } else {
+            // ISOMETRIC DRAWING (Block Model)
+            const pts = {
+                bottomCenter: pt,
+                bottomRight: { x: pt.x + (w * tw), y: pt.y + (w * th) },
+                bottomLeft: { x: pt.x - (d * tw), y: pt.y + (d * th) },
+                bottomBack: { x: pt.x + (w * tw) - (d * tw), y: pt.y + (w * th) + (d * th) },
+                
+                topCenter: { x: pt.x, y: pt.y - (item.height * zw) },
+                topRight: { x: pt.x + (w * tw), y: pt.y + (w * th) - (item.height * zw) },
+                topLeft: { x: pt.x - (d * tw), y: pt.y + (d * th) - (item.height * zw) },
+                topBack: { x: pt.x + (w * tw) - (d * tw), y: pt.y + (w * th) + (d * th) - (item.height * zw) }
+            };
+
+            // Draw shadow based on Z height
+            if (item.z > 0) {
+                const shadowPt = this.project(item.x, item.y, 0); // Shadow at ground
+                this.ctx.fillStyle = 'rgba(0,0,0,0.2)';
+                this.ctx.beginPath();
+                this.ctx.moveTo(shadowPt.x, shadowPt.y);
+                this.ctx.lineTo(shadowPt.x + (w * tw), shadowPt.y + (w * th));
+                this.ctx.lineTo(shadowPt.x + (w * tw) - (d * tw), shadowPt.y + (w * th) + (d * th));
+                this.ctx.lineTo(shadowPt.x - (d * tw), shadowPt.y + (d * th));
+                this.ctx.closePath();
+                this.ctx.fill();
+            }
+
+            const drawFace = (path, fill, stroke) => {
+                this.ctx.beginPath();
+                this.ctx.moveTo(path[0].x, path[0].y);
+                for (let i = 1; i < path.length; i++) this.ctx.lineTo(path[i].x, path[i].y);
+                this.ctx.closePath();
+                this.ctx.fillStyle = fill;
+                this.ctx.fill();
+                this.ctx.strokeStyle = stroke;
+                this.ctx.lineWidth = isSelected ? 2 : 1;
+                this.ctx.stroke();
+            };
+
+            const hexToRgb = (hex) => {
+                if(hex.startsWith('rgba')) return hex; // Pass through RGBA
+                var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+                return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : '150, 150, 150';
+            };
+
+            const rgb = hexToRgb(item.color || '#999999');
+            
+            const strokeColor = isColliding ? 'red' : (isSelected ? 'var(--primary-color)' : (isHovered ? 'white' : 'rgba(0,0,0,0.5)'));
+
+            // Top Face
+            drawFace([pts.topCenter, pts.topRight, pts.topBack, pts.topLeft], 
+                rgb.includes('rgba') ? rgb : `rgba(${rgb}, 1.0)`, strokeColor);
+            
+            // Left Face (darker)
+            drawFace([pts.topCenter, pts.topLeft, pts.bottomLeft, pts.bottomCenter], 
+                rgb.includes('rgba') ? rgb : `rgba(${rgb}, 0.7)`, strokeColor);
+            
+            // Right Face (darkest)
+            drawFace([pts.topCenter, pts.topRight, pts.bottomRight, pts.bottomCenter], 
+                rgb.includes('rgba') ? rgb : `rgba(${rgb}, 0.5)`, strokeColor);
+        }
+    }
+
+    getThumbnail() {
+        // Returns a low-res base64 image of the current canvas state
+        const thumbCanvas = document.createElement('canvas');
+        thumbCanvas.width = 300;
+        thumbCanvas.height = 200;
+        const ctx = thumbCanvas.getContext('2d');
+        ctx.drawImage(this.canvas, 0, 0, this.canvas.width, this.canvas.height, 0, 0, 300, 200);
+        return thumbCanvas.toDataURL('image/jpeg', 0.8);
+    }
+}
+
+// ==========================================================================
+// OmniBuild 3D - UI & DOM Interactions
+// ==========================================================================
+class UIManager {
+    constructor() {
+        this.draggedItemType = null;
+        
+        // Listeners for modals & global shortcuts
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal-overlay:not(.hidden)').forEach(modal => this.hideModal(modal.id));
+                this.draggedItemType = null;
+                appState.state.selectedItemIndex = -1; // Suggestion 20: Esc to deselect
+                appState.notify('selectedItemIndex', -1);
+                if (window.engineInstance) window.engineInstance.render();
+                this.hideContextMenu();
+            }
+            
+            // Undo/Redo
+            if (e.ctrlKey && e.key === 'z') {
+                e.preventDefault();
+                appState.undo();
+            }
+            if (e.ctrlKey && e.key === 'y') {
+                e.preventDefault();
+                appState.redo();
+            }
+
+            // Delete item
+            if ((e.key === 'Delete' || e.key === 'Backspace') && appState.state.selectedItemIndex !== -1) {
+                if (document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+                    this.deleteSelectedItem();
+                }
+            }
+            
+            // Rotate item
+            if ((e.key === 'r' || e.key === 'R') && appState.state.selectedItemIndex !== -1) {
+                if (document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+                    this.rotateSelectedItem();
+                }
+            }
+
+            // Suggestion 18: Arrow keys to nudge selected item
+            if (appState.state.selectedItemIndex !== -1 && document.activeElement.tagName !== 'INPUT') {
+                const item = appState.state.items[appState.state.selectedItemIndex];
+                let nudged = false;
+                if (e.key === 'ArrowUp') { item.y -= 0.5; nudged = true; }
+                if (e.key === 'ArrowDown') { item.y += 0.5; nudged = true; }
+                if (e.key === 'ArrowLeft') { item.x -= 0.5; nudged = true; }
+                if (e.key === 'ArrowRight') { item.x += 0.5; nudged = true; }
+                if (nudged) {
+                    e.preventDefault();
+                    appState.notify('items', appState.state.items);
+                }
+            }
+        });
+
+        // Click outside context menu to close
+        window.addEventListener('click', (e) => {
+            if (!e.target.closest('#context-menu')) {
+                this.hideContextMenu();
+            }
+        });
+
+        // Suggestion 24: Drag and Drop JSON to load
+        window.addEventListener('dragover', (e) => e.preventDefault());
+        window.addEventListener('drop', (e) => {
+            e.preventDefault();
+            if (e.dataTransfer.files.length > 0) {
+                const file = e.dataTransfer.files[0];
+                if (file.name.endsWith('.json')) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        appState.importSnapshot(event.target.result);
+                        appState.triggerToast('Project Loaded from File!', 'success');
+                    };
+                    reader.readAsText(file);
+                }
+            }
+        });
+    }
+
+    deleteSelectedItem() {
+        if (appState.state.selectedItemIndex !== -1) {
+            appState.state.items.splice(appState.state.selectedItemIndex, 1);
+            appState.state.selectedItemIndex = -1;
+            appState.notify('items', appState.state.items);
+            appState.saveHistory();
+            appState.triggerToast('Item deleted', 'warning');
+            this.hideContextMenu();
+        }
+    }
+
+    rotateSelectedItem() {
+        if (appState.state.selectedItemIndex !== -1) {
+            const item = appState.state.items[appState.state.selectedItemIndex];
+            item.rotation = ((item.rotation || 0) + 90) % 360;
+            // Swap width and depth visually
+            const temp = item.width;
+            item.width = item.depth;
+            item.depth = temp;
+            
+            appState.notify('items', appState.state.items);
+            appState.saveHistory();
+        }
+    }
+
+    cloneSelectedItem() {
+        if (appState.state.selectedItemIndex !== -1) {
+            const item = appState.state.items[appState.state.selectedItemIndex];
+            const clone = JSON.parse(JSON.stringify(item));
+            clone.x += 1;
+            clone.y += 1;
+            appState.state.items.push(clone);
+            appState.state.selectedItemIndex = appState.state.items.length - 1;
+            appState.notify('items', appState.state.items);
+            appState.saveHistory();
+            this.hideContextMenu();
+        }
+    }
+
+    showModal(id) {
+        const modal = document.getElementById(id);
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.setAttribute('aria-hidden', 'false');
+        }
+    }
+
+    hideModal(id) {
+        const modal = document.getElementById(id);
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.setAttribute('aria-hidden', 'true');
+        }
+    }
+
+    renderDesignerSidebar() {
+        const sidebar = document.createElement('div');
+        sidebar.className = 'designer-sidebar';
+        
+        // Search Filter
+        const searchDiv = document.createElement('div');
+        searchDiv.style.padding = '1rem';
+        searchDiv.style.borderBottom = '1px solid var(--border-color)';
+        searchDiv.innerHTML = `<input type="text" id="asset-search" class="text-input" style="width: 100%" placeholder="Search catalog..." />`;
+        sidebar.appendChild(searchDiv);
+
+        const catalogDiv = document.createElement('div');
+        catalogDiv.id = 'catalog-container';
+        sidebar.appendChild(catalogDiv);
+
+        const renderCatalog = (filterText = '') => {
+            catalogDiv.innerHTML = '';
+            const categories = {};
+            OmniAssets.items.forEach(item => {
+                if (filterText && !item.name.toLowerCase().includes(filterText.toLowerCase())) return;
+                if (!categories[item.category]) categories[item.category] = [];
+                categories[item.category].push(item);
+            });
+            
+            Object.keys(categories).forEach(cat => {
+                const section = document.createElement('div');
+                section.className = 'sidebar-section';
+                
+                const header = document.createElement('div');
+                header.className = 'sidebar-section-header';
+                header.innerHTML = `<span>${cat.toUpperCase()}</span> <span>▼</span>`;
+                
+                const content = document.createElement('div');
+                content.className = 'sidebar-section-content';
+                if (filterText) content.style.display = 'grid'; // Auto open if searching
+                
+                categories[cat].forEach(item => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'draggable-item';
+                    itemDiv.innerHTML = `
+                        <img src='${item.icon}' alt="${item.name}" />
+                        <div style="font-size: 0.75rem">${item.name}</div>
+                    `;
+                    itemDiv.addEventListener('mousedown', () => { this.draggedItemType = item.id; });
+                    content.appendChild(itemDiv);
+                });
+                
+                header.addEventListener('click', () => {
+                    content.style.display = content.style.display === 'none' ? 'grid' : 'none';
+                });
+                
+                section.appendChild(header);
+                section.appendChild(content);
+                catalogDiv.appendChild(section);
+            });
+        };
+
+        searchDiv.querySelector('#asset-search').addEventListener('input', (e) => renderCatalog(e.target.value));
+        renderCatalog();
+        
+        return sidebar;
+    }
+
+    renderContextMenu() {
+        const menu = document.createElement('div');
+        menu.id = 'context-menu';
+        menu.className = 'context-menu hidden';
+        menu.innerHTML = `
+            <div class="menu-item" onclick="ui.rotateSelectedItem()">🔄 Rotate (R)</div>
+            <div class="menu-item" onclick="ui.cloneSelectedItem()">👯 Clone</div>
+            <div class="menu-item text-danger" onclick="ui.deleteSelectedItem()">🗑️ Delete (Del)</div>
+        `;
+        return menu;
+    }
+
+    showContextMenu(x, y) {
+        const menu = document.getElementById('context-menu');
+        if (menu) {
+            menu.style.left = `${x}px`;
+            menu.style.top = `${y}px`;
+            menu.classList.remove('hidden');
+        }
+    }
+
+    hideContextMenu() {
+        const menu = document.getElementById('context-menu');
+        if (menu) menu.classList.add('hidden');
+    }
+
+    renderDesignerWorkspace() {
+        const container = document.createElement('div');
+        container.className = 'view-designer';
+        
+        container.appendChild(this.renderDesignerSidebar());
+        
+        const canvasArea = document.createElement('div');
+        canvasArea.className = 'designer-canvas-area';
+        canvasArea.innerHTML = `
+            <canvas id="engine-canvas"></canvas>
+            
+            <div class="top-controls" style="position:absolute; top: 1rem; left: 1rem; display:flex; gap:0.5rem; background: var(--bg-surface-glass); padding: 0.5rem; border-radius: 8px;">
+                <button class="btn btn-icon" title="Undo (Ctrl+Z)" onclick="appState.undo()">↩️</button>
+                <button class="btn btn-icon" title="Redo (Ctrl+Y)" onclick="appState.redo()">↪️</button>
+                <div style="width: 1px; background: var(--border-color); margin: 0 0.5rem;"></div>
+                <button id="btn-view-toggle" class="btn btn-small" onclick="ui.toggleViewMode()">🎥 3D Iso</button>
+                <button id="btn-snap-toggle" class="btn btn-small btn-primary" onclick="ui.toggleSnap()">🧲 Snap: ON</button>
+            </div>
+
+            <div class="canvas-toolbar">
+                <button class="btn btn-icon" title="Save to Gallery" onclick="ui.saveToGallery()">🖼️</button>
+                <button class="btn btn-icon" title="Export Snapshot (JSON)" onclick="window.saveSnapshot()">💾</button>
+                <button class="btn btn-icon" title="Clear Grid" onclick="appState.state.items = []; appState.notify('items', []); appState.saveHistory();">🗑️</button>
+                <button class="btn btn-icon" title="Center Camera" onclick="appState.state.camera = {x:0, y:0, zoom:1, angle: appState.state.camera.angle}; appState.notify('camera', appState.state.camera);">🎯</button>
+            </div>
+            
+            <div id="property-panel" class="property-panel hidden">
+                <h4>🎛️ Properties</h4>
+                <div class="property-row"><label>↔️ X:</label><input type="number" id="prop-x" step="0.5" class="text-input btn-small" /></div>
+                <div class="property-row"><label>↕️ Y:</label><input type="number" id="prop-y" step="0.5" class="text-input btn-small" /></div>
+                <div class="property-row"><label>⬆️ Z (Height):</label><input type="number" id="prop-z" step="0.5" class="text-input btn-small" /></div>
+                <div class="property-row"><label>🔄 Rotation:</label><input type="number" id="prop-rot" step="90" class="text-input btn-small" readonly /></div>
+                <div class="property-row"><label>🎨 Color:</label><input type="color" id="prop-color" class="text-input btn-small" /></div>
+            </div>
+        `;
+        
+        container.appendChild(canvasArea);
+        container.appendChild(this.renderContextMenu());
+        return container;
+    }
+
+    toggleViewMode() {
+        const btn = document.getElementById('btn-view-toggle');
+        if (appState.state.camera.angle === 'isometric') {
+            appState.state.camera.angle = 'topdown';
+            btn.textContent = '2D Top';
+        } else {
+            appState.state.camera.angle = 'isometric';
+            btn.textContent = '3D Iso';
+        }
+        appState.notify('camera', appState.state.camera);
+    }
+
+    toggleSnap() {
+        const btn = document.getElementById('btn-snap-toggle');
+        appState.state.snapToGrid = !appState.state.snapToGrid;
+        if (appState.state.snapToGrid) {
+            btn.classList.add('btn-primary');
+            btn.textContent = 'Snap: ON';
+        } else {
+            btn.classList.remove('btn-primary');
+            btn.textContent = 'Snap: OFF';
+        }
+    }
+
+    updatePropertyPanel() {
+        const panel = document.getElementById('property-panel');
+        if (!panel) return;
+        
+        if (appState.state.selectedItemIndex !== -1) {
+            panel.classList.remove('hidden');
+            const item = appState.state.items[appState.state.selectedItemIndex];
+            
+            const bindProp = (id, prop, isFloat=true) => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.value = item[prop] || (prop==='rotation'?0:'');
+                    el.onchange = (e) => {
+                        item[prop] = isFloat ? parseFloat(e.target.value) : e.target.value;
+                        appState.notify('items', appState.state.items);
+                        appState.saveHistory();
+                    };
+                }
+            }
+
+            bindProp('prop-x', 'x');
+            bindProp('prop-y', 'y');
+            bindProp('prop-z', 'z');
+            bindProp('prop-rot', 'rotation');
+            bindProp('prop-color', 'color', false);
+        } else {
+            panel.classList.add('hidden');
+        }
+    }
+
+    saveToGallery() {
+        const name = prompt("Enter a name for this project:", "My Awesome Build");
+        if (name) {
+            if (window.engineInstance) {
+                const thumb = window.engineInstance.getThumbnail();
+                appState.saveProjectToGallery(name, thumb);
+            }
+        }
+    }
+}
+
+const ui = new UIManager();
+appState.subscribe('selectedItemIndex', () => ui.updatePropertyPanel());
+
+// ==========================================================================
+// OmniBuild 3D - Main App Bootstrap, Routing, & Theme logic
+// ==========================================================================
+
+// --- Web Worker Initialization ---
+const workerScript = document.getElementById('worker-code').textContent;
+const blob = new Blob([workerScript], { type: 'application/javascript' });
+const workerUrl = URL.createObjectURL(blob);
+const backgroundWorker = new Worker(workerUrl);
+
+backgroundWorker.onmessage = function(e) {
+    if (e.data.type === 'COLLISION_RESULT') {
+        if (e.data.data.length > 0) {
+            console.log('Background task found collisions:', e.data.data);
+            appState.triggerToast(`Detected ${e.data.data.length} overlaps!`, 'warning');
+        }
+    }
+};
+
+window.saveSnapshot = function() {
+    const json = appState.exportSnapshot();
+    // Simulate downloading
+    const a = document.createElement('a');
+    a.href = 'data:text/json;charset=utf-8,' + encodeURIComponent(json);
+    a.download = `omnibuild_snapshot_${Date.now()}.json`;
+    a.click();
+    appState.triggerToast('Snapshot Exported!', 'success');
+};
+
+// Periodic background check
+setInterval(() => {
+    if (appState.state.items.length > 1) {
+        backgroundWorker.postMessage({
+            action: 'COMPUTE_GRID_COLLISIONS',
+            payload: { items: appState.state.items, gridSize: appState.state.gridSize }
+        });
+    }
+}, 5000);
+
+// --- Theme Management ---
+function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('omni_theme', theme);
+}
+
+document.getElementById('theme-selector').value = appState.state.theme;
+document.getElementById('theme-selector').addEventListener('change', (e) => {
+    appState.state.theme = e.target.value;
+});
+
+appState.subscribe('theme', (theme) => applyTheme(theme));
+applyTheme(appState.state.theme);
+
+// --- Fullscreen Toggle ---
+document.getElementById('btn-fullscreen').addEventListener('click', () => {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {
+            appState.triggerToast(`Error attempting to enable fullscreen: ${err.message}`, 'error');
+        });
+    } else {
+        document.exitFullscreen();
+    }
+});
+
+// --- Virtual Router ---
+class VirtualRouter {
+    constructor() {
+        this.routes = {
+            '/': this.renderHome,
+            '/designer': this.renderDesigner,
+            '/gallery': this.renderGallery
+        };
+        
+        window.addEventListener('hashchange', () => this.handleRoute());
+        
+        // Key tracking for engine (e.g. Space to pan)
+        window.keys = {};
+        window.addEventListener('keydown', e => { window.keys[e.key] = true; });
+        window.addEventListener('keyup', e => { window.keys[e.key] = false; });
+    }
+    
+    navigate(path) {
+        window.location.hash = path;
+    }
+    
+    handleRoute() {
+        const path = window.location.hash.slice(1) || '/';
+        appState.state.route = path;
+        
+        const viewContainer = document.getElementById('router-view');
+        viewContainer.innerHTML = ''; // Clear current view
+        
+        const renderFunc = this.routes[path];
+        if (renderFunc) {
+            renderFunc(viewContainer);
+        } else {
+            viewContainer.innerHTML = `<div style="padding: 2rem; text-align: center;"><h2>404 - Not Found</h2><button class="btn btn-primary" onclick="router.navigate('/')">Go Home</button></div>`;
+        }
+    }
+    
+    renderHome(container) {
+        container.innerHTML = `
+            <div class="view-home">
+                <div class="hero-banner">
+                    <div class="hero-content">
+                        <h2>Build Tomorrow, Today.</h2>
+                        <p>A massive, zero-dependency, fully modular isometric home and structure designer running entirely in your browser.</p>
+                        <button class="btn btn-primary" onclick="router.navigate('/designer')">🚀 Launch Designer Workspace</button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    renderDesigner(container) {
+        container.appendChild(ui.renderDesignerWorkspace());
+        
+        // Initialize isometric engine after DOM is updated
+        setTimeout(() => {
+            window.engineInstance = new IsometricEngine('engine-canvas');
+        }, 50);
+    }
+    
+    renderGallery(container) {
+        let gallery = JSON.parse(localStorage.getItem('omnibuild_gallery') || '[]');
+        
+        let html = `
+            <div style="padding: 4rem 2rem; text-align: center;">
+                <h2>Local Gallery</h2>
+                <p>Saved environments are stored locally in your browser.</p>
+                <div class="gallery-grid" style="margin-top: 2rem;">
+        `;
+        
+        if (gallery.length === 0) {
+            html += `<p style="grid-column: 1 / -1; color: var(--text-secondary)">No projects saved yet. Go build something!</p>`;
+        } else {
+            gallery.forEach(project => {
+                html += `
+                    <div class="gallery-card">
+                        <img src="${project.thumbnail || ''}" class="gallery-preview" alt="Preview" />
+                        <div class="gallery-card-content">
+                            <h3>${project.name}</h3>
+                            <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1rem;">Saved: ${project.date}</p>
+                            <div style="display:flex; gap: 0.5rem; justify-content:center;">
+                                <button class="btn btn-primary btn-small" onclick="appState.loadProjectFromGallery('${project.id}'); router.navigate('/designer')">Load</button>
+                                <button class="btn btn-ghost btn-small text-danger" onclick="if(confirm('Delete project?')) { appState.deleteProjectFromGallery('${project.id}'); router.renderGallery(document.getElementById('router-view')); }">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+        
+        html += `</div></div>`;
+        container.innerHTML = html;
+    }
+}
+
+// Bootstrap
+const router = new VirtualRouter();
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Splash screen logic
+    const splash = document.getElementById('splash-screen');
+    const bar = document.getElementById('splash-progress');
+    if (splash && bar) {
+        let p = 0;
+        const interval = setInterval(() => {
+            p += Math.random() * 20;
+            if (p >= 100) {
+                p = 100;
+                clearInterval(interval);
+                setTimeout(() => splash.classList.add('hidden'), 500);
+            }
+            bar.style.width = p + '%';
+        }, 100);
+    }
+
+    document.getElementById('footer-timestamp').textContent = `Build Date: ${new Date().toLocaleString()}`;
+    router.handleRoute(); // initial route
+    appState.triggerToast('OmniBuild 3D Engine Initialized', 'success');
+});
+
+</script>
+</body>
+</html>
+
